@@ -4,7 +4,7 @@ from tkinter import *
 GUI = Tk()
 GUI.title('Inventar Planner')
 GUI.geometry('1280x720')
-GUI.wm_attributes("-transparentcolor", "white")
+#GUI.wm_attributes('-transparentcolor', GUI['bg'])
 GUI.resizable(0, 0)
 
 def bye(event):
@@ -17,26 +17,32 @@ settings_img = PhotoImage(file="resources\\settings.gif")
 help_img = PhotoImage(file="resources\\help.gif")
 
 
-home_label = Canvas(GUI, width=1280, height=720)
-home_label.pack()
+bg_label = Canvas(GUI, width=1280, height=720)
+bg_label.create_image(640, 360, image=background_img)
+bg_label.create_text(640, 50, fill='blue', font="Times 40 bold", text='INVENTAR PLANNER')
+bg_label.pack()
 
-home_label.create_image(640, 360, image=background_img)
-home_label.create_text(640, 50, font="Times 28 bold", text='INVENTAR PLANNER')
 
-home_label.create_image(300, 360, image=products_img)
-products_label = Label(home_label, text='Products', font=("Courier",  28)).place(x=215, y=500)
+products = Label(bg_label, image=products_img)
+products.place(x=180, y=225)
+products.bind('<Button-1>', bye)
+products_label = Label(bg_label, text='Products', font=("Courier",  28))
+products_label.place(x=215, y=500)
 #products_label.config(bg='systemTransparent')
-#products_label.bind('<Button-1>', bye)
+products_label.bind('<Button-1>', bye)
 
-home_label.create_image(640, 360, image=settings_img)
-settings_label = Label(home_label, text='Settings', font=("Courier",  28)).place(x=560, y=500)
-#settings_label.bind('<Button-1>', bye)
+settings = Label(bg_label, image=settings_img)
+settings.place(x=505, y=225)
+settings.bind('<Button-1>', bye)
+settings_label = Label(bg_label, text='Settings', font=("Courier",  28))
+settings_label.place(x=550, y=500)
+settings_label.bind('<Button-1>', bye)
 
-home_label.create_image(980, 360, image=help_img)
-help_label = Label(home_label, text='Help', font=("Courier",  28)).place(x=940, y=500)
-#help_label.bind('<Button-1>', bye)
-
-#title.bind('<Button-1>', bye)
-
+help = Label(bg_label, image=help_img)
+help.place(x=850, y=225)
+help.bind('<Button-1>', bye)
+help_label = Label(bg_label, text='Help', font=("Courier",  28))
+help_label.place(x=940, y=500)
+help_label.bind('<Button-1>', bye)
 
 GUI.mainloop()
