@@ -40,15 +40,15 @@ class HomePage(Frame):
         home_label = Canvas(self, width=1280, height=720)
         home_label.pack(side="top", fill="x")
 
-        background_img = PhotoImage(file="resources\\background.gif")
+        background_img = PhotoImage(file="resources/background.gif")
         self.bg = background_img
-        products_img = PhotoImage(file="resources\\products.gif")
+        products_img = PhotoImage(file="resources/products.gif")
         self.products = products_img
-        settings_img = PhotoImage(file="resources\\settings.gif")
+        settings_img = PhotoImage(file="resources/settings.gif")
         self.settings = settings_img
-        help_img = PhotoImage(file="resources\\help.gif")
+        help_img = PhotoImage(file="resources/help.gif")
         self.help = help_img
-        user_img = PhotoImage(file="resources\\user.gif")
+        user_img = PhotoImage(file="resources/user.gif")
         self.user = user_img
 
         home_label.create_image(640, 360, image=background_img)
@@ -82,13 +82,13 @@ class ProductsPage(Frame):
         products_label = Canvas(self, width=1280, height=720)
         products_label.pack(side="top", fill="x")
 
-        background_img = PhotoImage(file="resources\\background.gif")
+        background_img = PhotoImage(file="resources/background.gif")
         self.bg = background_img
 
         products_label.create_image(640, 360, image=background_img)
         products_label.create_text(640, 60, fill='blue', font="Times 40 bold", text='Products')
 
-        back_img = PhotoImage(file="resources\\back.gif")
+        back_img = PhotoImage(file="resources/back.gif")
         self.back = back_img
 
         products_label.create_image(100, 60, image=back_img, tag='back')
@@ -106,13 +106,13 @@ class SettingsPage(Frame):
         settings_label = Canvas(self, width=1280, height=720)
         settings_label.pack(side="top", fill="x")
 
-        background_img = PhotoImage(file="resources\\background.gif")
+        background_img = PhotoImage(file="resources/background.gif")
         self.bg = background_img
 
         settings_label.create_image(640, 360, image=background_img)
         settings_label.create_text(640, 60, fill='blue', font="Times 40 bold", text='Settings')
 
-        back_img = PhotoImage(file="resources\\back.gif")
+        back_img = PhotoImage(file="resources/back.gif")
         self.back = back_img
 
         settings_label.create_image(100, 60, image=back_img, tag='back')
@@ -136,13 +136,13 @@ class HelpPage(Frame):
         help_label = Canvas(self, width=1280, height=720)
         help_label.pack(side="top", fill="x")
 
-        background_img = PhotoImage(file="resources\\background.gif")
+        background_img = PhotoImage(file="resources/background.gif")
         self.bg = background_img
 
         help_label.create_image(640, 360, image=background_img)
         help_label.create_text(640, 60, fill='blue', font="Times 40 bold", text='Help')
 
-        back_img = PhotoImage(file="resources\\back.gif")
+        back_img = PhotoImage(file="resources/back.gif")
         self.back = back_img
 
         help_label.create_image(100, 60, image=back_img, tag='back')
