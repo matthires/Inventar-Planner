@@ -1,7 +1,9 @@
 #!/usr/bin/python
+import tkinter.filedialog as tkfd
+import tkinter.messagebox as tm
 from tkinter import *
 from tkinter import ttk
-import tkinter.messagebox as tm
+#from Pillow import Image
 
 
 class InventoryPlanner(Tk):
@@ -35,23 +37,45 @@ class InventoryPlanner(Tk):
 
 class HomePage(Frame):
 
-    def sign_up(self):
-        self.signup_frame = Toplevel(width=400, height=220)
-        self.signup_frame.title('Sign up')
-        sign_up_label = Label(self.signup_frame, width=100, height=60)
-        sign_up_label.place(x=10, y=10)
-        Label(sign_up_label, text="Enter your username and password!", font="Times 12 bold").place(x=100, y=10)
-        Label(sign_up_label, text="User Name").place(x=50, y=50)
-        self.user_name = Entry(sign_up_label, bd=5)
-        self.user_name.place(x=150, y=50)
-        Label(sign_up_label, text="Password").place(x=50, y=100)
-        self.password = Entry(sign_up_label, bd=5, show="*")
-        self.password.place(x=150, y=100)
-        sign_up_button = Button(sign_up_label, text='Sign Up', command=lambda: self._login_())
-        sign_up_button.place(x=180, y=150)
-        sign_up_label.mainloop()
+    def sign_out(self, controller):
+        self.sign_out_frame.destroy()
+        tm.showinfo("Signed out.", "You were successfully signed out.")
+        self.home_label.itemconfig(self.signup_txt, text="Sign up")
+        controller.is_admin = False
 
-    def _login_(self):
+    def sign_up(self, controller):
+        if not controller.is_admin:
+            self.signup_frame = Toplevel(width=400, height=220)
+            self.signup_frame.title('Sign up')
+            sign_up_label = Label(self.signup_frame, width=100, height=60)
+            sign_up_label.place(x=10, y=10)
+            Label(sign_up_label, text="Enter your username and password!", font="Times 12 bold").place(x=100, y=10)
+            Label(sign_up_label, text="User Name").place(x=50, y=50)
+            self.user_name = Entry(sign_up_label, bd=5)
+            self.user_name.place(x=150, y=50)
+            Label(sign_up_label, text="Password").place(x=50, y=100)
+            self.password = Entry(sign_up_label, bd=5, show="*")
+            self.password.place(x=150, y=100)
+            sign_up_button = Button(sign_up_label, text='Sign Up', command=lambda: self._login_(controller))
+            self.password.bind('<Return>', lambda event: self._login_(controller))
+            sign_up_button.place(x=180, y=150)
+            sign_up_label.mainloop()
+        else:
+            self.sign_out_frame = Toplevel(width=360, height=160)
+            self.sign_out_frame.title('Profile')
+            sign_out_label = Label(self.sign_out_frame, width=100, height=60)
+            sign_out_label.place(x=10, y=10)
+            txt='Signed up as ' + self.user.get() + '.'
+            Label(sign_out_label, text=txt, font="Times 12 bold").place(x=100, y=20)
+            Label(sign_out_label, text='Do you want to sign out?', font="Times 12 bold").place(x=90, y=60)
+            yes_btn = Button(sign_out_label, text="Yes", font="Times 12 bold",
+                             command=lambda: self.sign_out(controller))
+            yes_btn.place(x=120, y=100)
+            no_btn = Button(sign_out_label, text="No", font="Times 12 bold",
+                            command=lambda: self.sign_out_frame.destroy())
+            no_btn.place(x=160, y=100)
+
+    def _login_(self, controller):
         username = self.user_name.get()
         password = self.password.get()
 
@@ -59,6 +83,7 @@ class HomePage(Frame):
             tm.showinfo("Login info", "Welcome " + self.user.get())
             self.signup_frame.destroy()
             self.home_label.itemconfig(self.signup_txt, text=self.user.get())
+            controller.is_admin = True
         else:
             tm.showerror("Login error!", "Incorrect username or password!")
 
@@ -66,11 +91,13 @@ class HomePage(Frame):
         Frame.__init__(self, parent)
 
         self.signup_frame = self
+        self.sign_out_frame = self
         self.controller = controller
         self.user_name = StringVar()
         self.password = StringVar()
         self.user = StringVar()
         self.user.set('Admin')
+        controller.is_admin = False
 
         self.home_label = Canvas(self, width=1280, height=720)
         home_label = self.home_label
@@ -105,13 +132,18 @@ class HomePage(Frame):
         home_label.create_image(1180, 60, image=signup_img, tag='signup')
         self.signup_txt = home_label.create_text(1180, 100, font="Times 12 bold", text='Sign up', tag='signup')
 
-        home_label.tag_bind('signup', '<ButtonPress-1>', lambda event: self.sign_up())
+        home_label.tag_bind('signup', '<ButtonPress-1>', lambda event: self.sign_up(controller))
 
 
 class ProductsPage(Frame):
 
     def add_product(self):
         self.new_prod_frame.destroy()
+
+    def load_pic(self):
+        img_path = tkfd.askopenfilename(filetypes=[("GIF", "*.gif")], title='Select a picture')
+        self.product_image = PhotoImage(file=img_path)
+        self.product_img.configure(image=self.product_image)
 
     def new_product(self):
         self.new_prod_frame = Toplevel(width=800, height=220)
@@ -124,12 +156,12 @@ class ProductsPage(Frame):
         Label(new_product_label, text="Endurance(months)", font="Times 12 bold").place(x=550, y=40)
         Label(new_product_label, text="Price(eur)", font="Times 12 bold").place(x=690, y=40)
 
-        product_img = Label(new_product_label, image=self.product_img)
-        product_img.place(x=60, y=35)
-        product_img.bind('<ButtonPress-1>', lambda event: self.add_product())
+        self.product_img = Label(new_product_label, image=self.product_image)
+        self.product_img.place(x=60, y=35)
+        self.product_img.bind('<ButtonPress-1>', lambda event: self.load_pic())
         change_pic = Label(new_product_label, text='Change pic', fg='blue', font='Helvetica 9')
         change_pic.place(x=60, y=90)
-        change_pic.bind('<ButtonPress-1>', lambda event: self.add_product())
+        change_pic.bind('<ButtonPress-1>', lambda event: self.load_pic())
 
         prod_name_entry = Entry(new_product_label, bd=5, font='Helvetica 14 bold')
         prod_name_entry.place(x=150, y=70, width=200)
@@ -152,7 +184,8 @@ class ProductsPage(Frame):
         self.controller = controller
 
         self.new_prod_frame = self
-        self.product_img = PhotoImage(file="resources/empty_img.gif")
+        self.product_image = PhotoImage(file="resources/empty_img.gif")
+        self.product_img = Label()
 
         products_canvas = Canvas(self, width=1280, height=720)
         products_canvas.pack(side="top", fill="x")
@@ -188,10 +221,13 @@ class SettingsPage(Frame):
         self.months.configure(to=self.max_months.get())
         self.reminder_label.configure(foreground=self.text_color.get())
 
-    def save_settings(self):
-        self.months_set.set(self.months.get())
-        self.limit.set(self.limit_entry.get())
-        self.controller.show_frame('HomePage')
+    def save_settings(self, controller):
+        if controller.is_admin:
+            self.months_set.set(self.months.get())
+            self.limit.set(self.limit_entry.get())
+            self.controller.show_frame('HomePage')
+        else:
+            tm.showerror("Error!", "You have no permissions to change settings!")
 
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
@@ -236,7 +272,8 @@ class SettingsPage(Frame):
         self.limit_entry.place(x=510, y=168, width=100)
         Label(self.settings_label, font="Times 20 bold", text='€').place(x=620, y=170)
 
-        save_btn = Button(settings_canvas, text="Save", font="Times 20 bold", command=lambda: self.save_settings())
+        save_btn = Button(settings_canvas, text="Save", font="Times 20 bold",
+                          command=lambda: self.save_settings(controller))
         save_btn.place(x=640, y=620)
 
 
