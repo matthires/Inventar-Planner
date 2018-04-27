@@ -2,8 +2,8 @@
 import tkinter.filedialog as tkfd
 import tkinter.messagebox as tm
 from tkinter import *
-from tkinter import ttk
-#from Pillow import Image
+
+from Product import Product
 
 
 class InventoryPlanner(Tk):
@@ -136,14 +136,24 @@ class HomePage(Frame):
 
 
 class ProductsPage(Frame):
+    #new_prod =
 
     def add_product(self):
+        img = self.prod_image
+        name = self.prod_name_entry.get()
+        date = self.prod_date_entry.get()
+        num = self.num_entry.get()
+        endurance = self.endurance_entry.get()
+        price = self.price_entry.get()
+        self.new_prod = Product(self.prod_label, img, name, date, num, endurance, price)
+        self.new_prod.add_to_label(self.prod_label)
+        self.products.insert(len(self.products), self.new_prod)
         self.new_prod_frame.destroy()
 
     def load_pic(self):
         img_path = tkfd.askopenfilename(filetypes=[("GIF", "*.gif")], title='Select a picture')
-        self.product_image = PhotoImage(file=img_path)
-        self.product_img.configure(image=self.product_image)
+        self.prod_image = PhotoImage(file=img_path)
+        self.product_img.configure(image=self.prod_image)
 
     def new_product(self):
         self.new_prod_frame = Toplevel(width=800, height=220)
@@ -151,28 +161,28 @@ class ProductsPage(Frame):
         new_product_label = Label(self.new_prod_frame, width=800, height=220)
         new_product_label.place(x=10, y=10)
         Label(new_product_label, text="Product name", font="Times 12 bold").place(x=150, y=40)
-        Label(new_product_label, text="Buying date", font="Times 12 bold").place(x=350, y=40)
-        Label(new_product_label, text="Num", font="Times 12 bold").place(x=470, y=40)
+        Label(new_product_label, text="Buying date", font="Times 12 bold").place(x=365, y=40)
+        Label(new_product_label, text="Num", font="Times 12 bold").place(x=500, y=40)
         Label(new_product_label, text="Endurance(months)", font="Times 12 bold").place(x=550, y=40)
-        Label(new_product_label, text="Price(eur)", font="Times 12 bold").place(x=690, y=40)
+        Label(new_product_label, text="Price(€)", font="Times 12 bold").place(x=700, y=40)
 
-        self.product_img = Label(new_product_label, image=self.product_image)
+        self.product_img = Label(new_product_label, image=self.no_photo)
         self.product_img.place(x=60, y=35)
         self.product_img.bind('<ButtonPress-1>', lambda event: self.load_pic())
         change_pic = Label(new_product_label, text='Change pic', fg='blue', font='Helvetica 9')
         change_pic.place(x=60, y=90)
         change_pic.bind('<ButtonPress-1>', lambda event: self.load_pic())
 
-        prod_name_entry = Entry(new_product_label, bd=5, font='Helvetica 14 bold')
-        prod_name_entry.place(x=150, y=70, width=200)
-        prod_date_entry = Entry(new_product_label, bd=5, font='Helvetica 14 bold')
-        prod_date_entry.place(x=350, y=70, width=100)
-        num_entry = Spinbox(new_product_label, from_=1, to=120, width=3, font='Helvetica 14 bold')
-        num_entry.place(x=470, y=75)
-        endurance_entry = Spinbox(new_product_label, from_=0, to=48, width=3, font='Helvetica 14 bold')
-        endurance_entry.place(x=580, y=75)
-        price_entry = Entry(new_product_label, bd=5, font='Helvetica 14 bold')
-        price_entry.place(x=690, y=70, width=50)
+        self.prod_name_entry = Entry(new_product_label, bd=5, font='Helvetica 14 bold')
+        self.prod_name_entry.place(x=150, y=70, width=200)
+        self.prod_date_entry = Entry(new_product_label, bd=5, font='Helvetica 14')
+        self.prod_date_entry.place(x=365, y=70, width=120)
+        self.num_entry = Spinbox(new_product_label, from_=1, to=120, width=3, font='Helvetica 14')
+        self.num_entry.place(x=500, y=75)
+        self.endurance_entry = Spinbox(new_product_label, from_=0, to=48, width=3, font='Helvetica 14')
+        self.endurance_entry.place(x=580, y=75)
+        self.price_entry = Entry(new_product_label, bd=5, font='Helvetica 14')
+        self.price_entry.place(x=690, y=70, width=80)
 
         add_prod_btn = Button(new_product_label, text="Add", font="Times 12 bold",
                               command=lambda: self.add_product())
@@ -184,8 +194,10 @@ class ProductsPage(Frame):
         self.controller = controller
 
         self.new_prod_frame = self
-        self.product_image = PhotoImage(file="resources/empty_img.gif")
+        self.no_photo = PhotoImage(file="resources/empty_img.gif")
+        self.prod_image = PhotoImage(file="resources/empty_img.gif")
         self.product_img = Label()
+        self.products = []
 
         products_canvas = Canvas(self, width=1280, height=720)
         products_canvas.pack(side="top", fill="x")
@@ -200,12 +212,22 @@ class ProductsPage(Frame):
         self.back = back_img
 
         products_canvas.create_image(100, 60, image=back_img, tag='back')
-
         products_canvas.tag_bind('back', '<Button-1>', lambda event: controller.show_frame('HomePage'))
 
+        self.prod_label = Canvas(products_canvas, bg='grey')
+        self.prod_label.place(x=150, y=100, width=980, height=500)
+        self.scrollbar = Scrollbar(self.prod_label, orient=VERTICAL)
+        self.scrollbar.place(x=962, y=1, height=500)
+        self.scrollbar.config(command=self.prod_label.yview)
+        products_txt = "Product name         Buying date   Num   Endurance(mth)  Price(€)"
+        Label(self.prod_label, bg='grey', text=products_txt, font="Times 22 bold").place(x=150, y=10)
+
+        delete_prod_btn = Button(self.prod_label, text="X", font="Times 20 bold",
+                                 command=lambda: self.new_prod.delete)
+        delete_prod_btn.place(x=30, y=620)
         new_prod_btn = Button(products_canvas, text="Add product +", font="Times 20 bold",
                               command=lambda: self.new_product())
-        new_prod_btn.place(x=600, y=620)
+        new_prod_btn.place(x=550, y=620)
 
 
 class SettingsPage(Frame):
@@ -257,8 +279,8 @@ class SettingsPage(Frame):
 
         Label(self.settings_label, font="Times 20 bold", text='Set up reminder').place(x=200, y=50)
 
-        self.reminder = ttk.Checkbutton(self.settings_label, width=1, variable=self.is_reminder_set,
-                                        command=lambda: self.set_reminder(), onvalue=True, offvalue=False)
+        self.reminder = Checkbutton(self.settings_label, width=1, variable=self.is_reminder_set,
+                                    command=lambda: self.set_reminder(), onvalue=True, offvalue=False)
         self.reminder.place(x=400, y=59)
 
         self.reminder_label = Label(self.settings_label, foreground=self.text_color.get(), font="Times 20 bold",
@@ -274,7 +296,7 @@ class SettingsPage(Frame):
 
         save_btn = Button(settings_canvas, text="Save", font="Times 20 bold",
                           command=lambda: self.save_settings(controller))
-        save_btn.place(x=640, y=620)
+        save_btn.place(x=600, y=620)
 
 
 class HelpPage(Frame):
