@@ -21,7 +21,7 @@ class InventoryPlanner(Tk):
         self.resizable(0, 0)
 
         self.frames = {}
-        for F in (HomePage, ProductsPage, SettingsPage, HelpPage):
+        for F in (HomePage, ProductsPage, SettingsPage, HelpPage, EndingProductsPage):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -136,7 +136,7 @@ class HomePage(Frame):
 
 
 class ProductsPage(Frame):
-    #new_prod =
+    products = []
 
     def add_product(self):
         img = self.prod_image
@@ -147,7 +147,7 @@ class ProductsPage(Frame):
         price = self.price_entry.get()
         self.new_prod = Product(self.prod_label, img, name, date, num, endurance, price)
         self.new_prod.add_to_label(self.prod_label)
-        self.products.insert(len(self.products), self.new_prod)
+        ProductsPage.products.insert(len(ProductsPage.products), self.new_prod)
         self.new_prod_frame.destroy()
 
     def load_pic(self):
@@ -197,7 +197,6 @@ class ProductsPage(Frame):
         self.no_photo = PhotoImage(file="resources/empty_img.gif")
         self.prod_image = PhotoImage(file="resources/empty_img.gif")
         self.product_img = Label()
-        self.products = []
 
         products_canvas = Canvas(self, width=1280, height=720)
         products_canvas.pack(side="top", fill="x")
@@ -228,6 +227,69 @@ class ProductsPage(Frame):
         new_prod_btn = Button(products_canvas, text="Add product +", font="Times 20 bold",
                               command=lambda: self.new_product())
         new_prod_btn.place(x=550, y=620)
+
+        ending_prods_btn = Button(products_canvas, text="Products ending", font="Times 20 bold",
+                                  command=lambda: controller.show_frame('EndingProductsPage'))
+        ending_prods_btn.place(x=250, y=620)
+
+
+class EndingProductsPage(Frame):
+    prod_y = 80
+
+    def show_products(self):
+
+        for product in ProductsPage.products:
+            picture = product.picture
+            name = product.name
+            date = product.date
+            num = product.num
+            endurance = product.endurance
+            price = product.price
+            prod_y = EndingProductsPage.prod_y
+            Label(self.prod_label, image=picture, bg='grey', font="Times 22").place(x=60, y=prod_y - 25)
+            Label(self.prod_label, text=name, bg='grey', font="Times 22").place(x=150, y=prod_y)
+            Label(self.prod_label, text=date, bg='grey', font="Times 22").place(x=400, y=prod_y)
+            Label(self.prod_label, text=str(num), bg='grey', font="Times 22").place(x=570, y=prod_y)
+            Label(self.prod_label, text=str(endurance), bg='grey', font="Times 22").place(x=730, y=prod_y)
+            Label(self.prod_label, text=str(price), bg='grey', font="Times 22").place(x=870, y=prod_y)
+            EndingProductsPage.prod_y += 80
+
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+
+        products_canvas = Canvas(self, width=1280, height=720)
+        products_canvas.pack(side="top", fill="x")
+        background_img = PhotoImage(file="resources/background.gif")
+        self.bg = background_img
+        products_canvas.create_image(640, 360, image=background_img)
+        products_canvas.create_text(640, 60, fill='blue', font="Times 40 bold", text='Ending Products')
+        back_img = PhotoImage(file="resources/back.gif")
+        self.back = back_img
+        products_canvas.create_image(100, 60, image=back_img, tag='back')
+        products_canvas.tag_bind('back', '<Button-1>', lambda event: controller.show_frame('HomePage'))
+        products_canvas.create_text(300, 130, fill='white', font="Times 22 bold", text='Products ending on:')
+
+        self.month = StringVar(self)
+        self.month.set("January")
+
+        months = OptionMenu(self, self.month, "January", "February", "March", "April", "May", "June", "July", "August",
+                            "September", "October", "November", "December")
+        months.place(x=450, y=120)
+
+        show_ending_prods_btn = Button(products_canvas, text="Show products", font="Times 12 bold",
+                                       command=lambda: self.show_products())
+        show_ending_prods_btn.place(x=650, y=120)
+
+        self.years = Spinbox(products_canvas, from_=2018, to=2050, width=6, font='Helvetica 18')
+        self.years.place(x=540, y=120)
+
+        self.prod_label = Canvas(products_canvas, bg='grey')
+        self.prod_label.place(x=150, y=170, width=980, height=500)
+        self.scrollbar = Scrollbar(self.prod_label, orient=VERTICAL)
+        self.scrollbar.place(x=962, y=1, height=500)
+        self.scrollbar.config(command=self.prod_label.yview)
+        products_txt = "Product name         Buying date   Num   Endurance(mth)  Price(€)"
+        Label(self.prod_label, bg='grey', text=products_txt, font="Times 22 bold").place(x=150, y=10)
 
 
 class SettingsPage(Frame):
